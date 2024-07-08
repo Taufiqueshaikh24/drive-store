@@ -1,14 +1,19 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import { useOrganization} from "@clerk/nextjs";
+import { useOrganization, useUser} from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 
 
   export default function Home() {
-    const { organization } = useOrganization();
-    // console.log(organization?.id);
-    const files = useQuery(api.files.getFiles, organization?.id ? { orgId : organization?.id } : "skip");
+    const organization  = useOrganization();
+    const user = useUser();
+     let orgId = null;
+
+     if(organization.isLoaded && user.isLoaded){
+          orgId = organization.organization?.id ?? user.user?.id
+     }
+    const files = useQuery(api.files.getFiles, orgId  ? { orgId } : 'skip' );
     const createFile = useMutation(api.files.createFile);
   
     return (
@@ -19,10 +24,10 @@ import { useMutation, useQuery } from "convex/react";
   
         <Button
           onClick={() => {
-            if (!organization?.id) return;
+            if (!orgId) return;
             createFile({
               name: "hello world",
-              orgId : organization.id
+              orgId,
             });
           }}
         >

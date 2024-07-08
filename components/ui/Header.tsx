@@ -13,12 +13,15 @@ import Image from "next/image";
                <SignedOut>
                     <SignInButton />
                 </SignedOut>
-                    <div className="flex gap-2">
+                    
                 <SignedIn>
+                    <div className="flex gap-2">
+
                     <OrganizationSwitcher />
                     <UserButton />
-                </SignedIn>
                     </div>
+                </SignedIn>
+                    
            </nav>
      )
 };
