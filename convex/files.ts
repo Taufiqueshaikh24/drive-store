@@ -1,13 +1,38 @@
 
-import {mutation, query} from './_generated/server'
+import {mutation, MutationCtx, query, QueryCtx} from './_generated/server'
 import {ConvexError, v} from 'convex/values'
+import { getUser } from './users';
+
+
+
+export const generateUploadUrl = mutation(async (ctx) => {
+      const identity = await ctx.auth.getUserIdentity();
+
+      if(!identity){
+          throw new ConvexError('You must be Logged in to upload a file')
+      }
+
+     return await ctx.storage.generateUploadUrl();
+} )
+
+
+async function hasAccessToOrg( 
+  ctx: QueryCtx | MutationCtx , 
+  tokenIdentifier : string , 
+  orgId:string
+){
+     const user = await getUser(ctx , tokenIdentifier );
+     const hasAccess = user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId);
+     return hasAccess;
+}
 
 export const createFile = mutation({
 
 
      args: {
           name : v.string(),
-          orgId : v.string()
+          fileId : v.id("_storage"),
+          orgId : v.string(),
      },
      async handler(ctx , args){
 
@@ -15,12 +40,26 @@ export const createFile = mutation({
           console.log('identnitity',identity);
 
           if(!identity){
-                throw new ConvexError('You Must be logged in')
+            throw new ConvexError('You Must be logged in')
+      }
+
+         const user = await getUser(ctx , identity.tokenIdentifier);
+
+
+          const hasAccess = await hasAccessToOrg(ctx , identity?.tokenIdentifier , args.orgId)
+          
+     
+
+          
+          if(!hasAccess){
+             throw new Error('You are not Authorized');
           }
 
         await ctx.db.insert('files' , {
                name:args.name,
-               orgId : args.orgId
+               orgId : args.orgId,
+               fileId : args.fileId
+              
         })
      } 
 })
