@@ -2,7 +2,8 @@
 import {mutation, MutationCtx, query, QueryCtx} from './_generated/server'
 import {ConvexError, v} from 'convex/values'
 import { getUser } from './users';
-import { connect } from 'http2';
+import { fileTypes } from './schema';
+import { Doc, Id } from './_generated/dataModel';
 
 
 
@@ -17,14 +18,17 @@ export const generateUploadUrl = mutation(async (ctx) => {
 } )
 
 
-async function hasAccessToOrg( 
-  ctx: QueryCtx | MutationCtx , 
-  tokenIdentifier : string , 
-  orgId:string
-){
-     const user = await getUser(ctx , tokenIdentifier );
-     const hasAccess = user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId);
-     return hasAccess;
+async function hasAccessToOrg(
+  ctx: QueryCtx | MutationCtx,
+  tokenIdentifier: string,
+  orgId: string
+) {
+  const user = await getUser(ctx, tokenIdentifier);
+
+  const hasAccess =
+    user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId);
+
+  return hasAccess;
 }
 
 
@@ -37,6 +41,7 @@ export const createFile = mutation({
 
      args: {
           name : v.string(),
+          type : fileTypes,
           fileId : v.id("_storage"),
           orgId : v.string(),
      },
@@ -63,8 +68,9 @@ export const createFile = mutation({
 
         await ctx.db.insert('files' , {
                name:args.name,
+               type : args.type,
                orgId : args.orgId,
-               fileId : args.fileId
+               fileId : args.fileId,
               
         })
      } 
@@ -74,6 +80,7 @@ export const createFile = mutation({
 export const getFiles = query({
      args: {
        orgId: v.string(),
+       type : v.optional(fileTypes)
      },
      async handler(ctx, args) {
        const identity = await ctx.auth.getUserIdentity();
@@ -83,10 +90,37 @@ export const getFiles = query({
        }
    
    
-       return ctx.db
+       let files =  await ctx.db
          .query("files")
          .withIndex("by_orgId", (q) => q.eq("orgId", args.orgId))
          .collect();
+
+
+  
+        //  const filesWithUrl = await Promise.all(
+        //   (await files).map(async (file:Doc<"files">) => ({
+        //     ...file,
+        //     url: await ctx.storage.getUrl(file.fileId),
+        //   }))
+        // );
+    
+        // return filesWithUrl;
+      
+
+
+        const filesWithUrl = await Promise.all(
+          files?.map(async (file) => ({
+            ...file,
+            url: await ctx.storage.getUrl(file.fileId),
+          }))
+        );
+
+        console.log(filesWithUrl);
+    
+        return filesWithUrl;
+
+
+
      },
    });
    
@@ -105,10 +139,12 @@ export const getFiles = query({
               const file = await ctx.db.get(args.fileId);
 
               if(!file){
-                throw new ConvexError("File dostn't exists");
+                throw new ConvexError("File doesn't exists");
               }
-              
-              const hasAccess = await hasAccessToOrg(ctx , identity.tokenIdentifier, file.orgId? )
+
+              if(!file.orgId) return ;
+               // i was getting error in file.orgId so i checked up for if(!file.orgId) return;              
+              const hasAccess = await hasAccessToOrg(ctx , identity.tokenIdentifier, file.orgId );
 
              if(!hasAccess){
                  throw new ConvexError('You are not authorized to this Organization');
@@ -118,4 +154,11 @@ export const getFiles = query({
 
           }
    })
-      
+
+
+
+
+  
+
+
+

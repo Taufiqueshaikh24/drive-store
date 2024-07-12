@@ -29,6 +29,7 @@ import {  z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
+import { Doc } from "@/convex/_generated/dataModel";
 
 const formSchema = z.object({
     title : z.string().min(1).max(20),
@@ -37,7 +38,7 @@ const formSchema = z.object({
     .refine((files) => files.length > 0 , 'Required')
 })
 
-  export default function UploadButton() {
+  export default function UploadButton({button}: { button : string}) {
 
        const [isOpen , setIsOpen] = useState(false);
        const {toast} = useToast();
@@ -53,6 +54,9 @@ const formSchema = z.object({
         const fileRef  = form.register('file');
       async function onSubmit(values: z.infer<typeof formSchema>){
               console.log(values);
+
+
+              const fileType =  values.file[0].type ; 
               
               if (!orgId) return;
                // Step 1: Get a short-lived upload URL
@@ -60,7 +64,7 @@ const formSchema = z.object({
                 const result  = await fetch(postUrl , {
                    method: 'POST', 
                    headers : {
-                       "Content-Type": values.file[0].type
+                       "Content-Type": fileType 
                    },
                    body : values.file[0], 
                    
@@ -68,10 +72,57 @@ const formSchema = z.object({
                 // Getting the storage from the convex table 
                 const { storageId } = await result.json();
 
+                console.log(fileType);
+
+               const types   = {
+                     "image/png":"png",
+                     "image/jpeg":"jpeg",
+                     "image/jpg":"jpg",
+                     "application/pdf":"pdf",
+                     "text/csv": "csv",
+                     "application/x-rar-compressed" : "rar",
+                     "application/octet-stream" : "iso",
+                     "text/plain": "txt",
+                     "audio/mpeg":"mp3",
+                     "video/mp4":"mp4",
+                     "text/javascript":"js",
+                     "application/msword":"doc",
+                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document":"docx",
+                     "application/vnd.ms-excel":"xls",
+                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":"xlsx",
+                     "application/zip":"zip",
+                     "application/x-zip-compressed":"zip",
+                     'text/html':"html",
+                     'text/css':"css"
+
+
+                     
+                    
+                     
+               } as Record<string , Doc<"files">["type"]>
+
+
+              // const types = {
+              //       "image/png":"image",
+              //        "image/jpeg":"image",
+              //        "application/pdf":"pdf",
+              //        "text/csv": "csv",
+              //        'text/html':"html",
+              //        'text/css':"css",
+              //        "application/msword":"doc",
+              //               "application/vnd.openxmlformats-officedocument.wordprocessingml.document":"docx",
+              //               "application/vnd.ms-excel":"xls",
+              //               "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":"xlsx",
+              //               "application/zip":"zip",
+              //               "application/x-zip-compressed":"zip",
+
+              // } as Record<string , Doc<"files">["type"]>
+
 
                   try {
-                    await createFile({
+                      createFile({
                       name: values.title,
+                      type : types[fileType],
                       fileId : storageId,
                       orgId,
                     });
@@ -104,11 +155,11 @@ const formSchema = z.object({
 
     const organization  = useOrganization();
     const user = useUser();
-     let orgId : string | undefined = undefined ;
+    let orgId: string | undefined = undefined ;
 
-     if(organization.isLoaded && user.isLoaded){
-          orgId = organization.organization?.id ?? user.user?.id
-     }
+    if (organization.isLoaded && user.isLoaded) {
+      orgId = organization.organization?.id ?? user.user?.id;
+    }
     // const files = useQuery(api.files.getFiles, orgId  ? { orgId } : 'skip' );
     const createFile = useMutation(api.files.createFile);
     const generateUploadUrl = useMutation(api.files.generateUploadUrl);
@@ -133,12 +184,12 @@ const formSchema = z.object({
             {form.formState.isSubmitting && (
                 <Loader2 className="h-2 w-4 animate-spin" />
             )}
-         + Upload Files
+         {button}
         </Button>
   </DialogTrigger>
   <DialogContent>
     <DialogHeader>
-      <DialogTitle className="pb-4" >Upload Your Files </DialogTitle>
+      <DialogTitle className="pb-4" >Upload Your Files</DialogTitle>
       <DialogDescription>
       <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -196,3 +247,8 @@ const formSchema = z.object({
     );
   }
   
+
+
+
+
+

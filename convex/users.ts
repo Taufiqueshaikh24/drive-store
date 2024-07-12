@@ -3,27 +3,47 @@ import { ConvexError, v } from "convex/values";
 
 
 
+// export async function getUser(
+//     ctx : QueryCtx | MutationCtx,
+//     tokenIdentifier : string
+// ){
+
+//         const identity = ctx.auth.getUserIdentity();
+//         if(!identity){
+//              throw new ConvexError('You should be logged In')
+//         }
+
+//        const user  = await ctx.db
+//        .query("users")
+//        .withIndex('by_tokenIdentifier' ,  q => q.eq('tokenIdentifier' , tokenIdentifier)
+//        ).first();
+
+//        if(!user){
+//           throw new ConvexError('User is not defined');
+//        }
+
+//        return user ; 
+// }
+
+
+
 export async function getUser(
-    ctx : QueryCtx | MutationCtx,
-    tokenIdentifier : string
-){
-
-        const identity = ctx.auth.getUserIdentity();
-        if(!identity){
-             throw new ConvexError('You should be logged In')
-        }
-
-       const user  = await ctx.db
-       .query("users")
-       .withIndex('by_tokenIdentifier' ,  q => q.eq('tokenIdentifier' , tokenIdentifier)
-       ).first();
-
-       if(!user){
-          throw new ConvexError('User is not defined');
-       }
-
-       return user ; 
-}
+    ctx: QueryCtx | MutationCtx,
+    tokenIdentifier: string
+  ) {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_tokenIdentifier", (q) =>
+        q.eq("tokenIdentifier", tokenIdentifier)
+      )
+      .first();
+  
+    if (!user) {
+      throw new ConvexError("expected user to be defined");
+    }
+  
+    return user;
+  }
 
 
 export const createUser = internalMutation({
