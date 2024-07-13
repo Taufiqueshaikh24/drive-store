@@ -34,6 +34,13 @@ export default defineSchema({
           fileId : v.id("_storage"),
         })
     .index("by_orgId" , ["orgId"]),
+    favourites : defineTable({
+        //   this fileid key is connected to files table using "files"
+           fileId: v.id("files"),
+                   //   this fileid key is connected to users table using "users"
+           userId : v.id("users"),
+           orgId: v.string()
+    }).index("by_userId_orgId_fileId" , ["userId" , "orgId"  , "fileId"]),
     users : defineTable({
             tokenIdentifier : v.string(),
             orgIds : v.array(v.string())

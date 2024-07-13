@@ -1,3 +1,7 @@
+
+
+
+
 "use client"
 import { useOrganization, useUser} from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
@@ -6,19 +10,18 @@ import Image from "next/image";
   
 
 
-import UploadButton from "./dashboard/_components/upload-button";
-import FileCard from "./dashboard/_components/FileCard";
-import { FileIcon, Loader2, StarIcon } from "lucide-react";
-import { url } from "inspector";
-import SearchBar from "./dashboard/_components/searchBar";
+import UploadButton from "../_components/upload-button";
+
+import FileCard from "../_components/FileCard";
+import {  Loader2,  } from "lucide-react";
+import SearchBar from "../_components/searchBar";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 
 
 
-  export default function Home() {
+  export default function FilesBrowser({title , favourites }: {title:string , favourites?:boolean }) {
 
    
 
@@ -33,7 +36,7 @@ import Link from "next/link";
      if(organization.isLoaded && user.isLoaded){
           orgId = organization.organization?.id ?? user.user?.id
      }
-    const files = useQuery(api.files.getFiles, orgId  ? { orgId , query } : 'skip' );
+    const files = useQuery(api.files.getFiles, orgId  ? { orgId , query , favourites } : 'skip' );
     const isLoading  =  files === undefined ; 
     const queryFailed = query === undefined ; 
     console.log(files);
@@ -47,21 +50,7 @@ import Link from "next/link";
 
    
       <main>
-          <div className="flex">
-
-          <div className="w-1/5 container flex flex-col gap-2 justify-start items-start h-50 mt-10" >
-          {!isLoading && (<>
-              <Link href="/"><Button variant={"link"} className="flex gap-2" ><FileIcon />All Files</Button></Link>
-              <Link href="/"><Button variant={"link"} className="flex gap-2" ><StarIcon />Favourites</Button></Link>
-    </> )}
-
-          
-          </div>
-
-          
-            <div className="w-full">
-
-        {/* side nav div */}
+         
           <div className="container flex justify-between pt-6 mt-4 ">
          
           
@@ -89,7 +78,7 @@ import Link from "next/link";
                         
                    
 
-                      <h2 className="text-3xl font-bold">Your Files</h2>
+                      <h2 className="text-3xl font-bold">{title}</h2>
                   
                     
 
@@ -118,10 +107,6 @@ import Link from "next/link";
                   })}
                   </div>
                   {/*  */}
-                  </div>
-                  </div>
-              
-             
           </main>
           </>
         );

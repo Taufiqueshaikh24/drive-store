@@ -13,7 +13,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import { Text ,  Braces, Code, Disc, FileArchive, FileText, FileTextIcon, GanttChartIcon, Hash, Headphones, ImageIcon, MoreVertical, TrashIcon, Video, Table, FolderArchive, ArrowDownToLine, } from "lucide-react"
+import { Text ,  Braces, Code, Disc, FileArchive, FileText, FileTextIcon, GanttChartIcon, Hash, Headphones, ImageIcon, MoreVertical, TrashIcon, Video, Table, FolderArchive, ArrowDownToLine, StarIcon, } from "lucide-react"
 import { Doc, Id } from "@/convex/_generated/dataModel"
 import { ReactNode, useState } from "react"
 import {
@@ -30,6 +30,7 @@ import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
+import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu"
 
 
 
@@ -46,6 +47,7 @@ function FileCardActions({file ,  url }:{ file:Doc<"files"> }  & {url: string | 
      const { toast } = useToast();
 
     const deleteFile = useMutation(api.files.deleteFile);
+    const toggleFavourite = useMutation(api.files.toggleFavourites)
 
     const [isOpen , setIsOpen ] = useState(false);
 
@@ -80,7 +82,7 @@ function FileCardActions({file ,  url }:{ file:Doc<"files"> }  & {url: string | 
 <DropdownMenuTrigger className="outline-none" ><MoreVertical className="w-4 h-4 " /></DropdownMenuTrigger>
 <DropdownMenuContent>
    
-<DropdownMenuItem className="flex gap-1 text-red-600 items-center flex  justify-start text-center cursor-pointer " 
+<DropdownMenuItem className="flex gap-1 text-green-600 items-center flex  justify-start text-center cursor-pointer " 
    onClick={() => {
         if(!url) return ; 
         window.open(url , "_blank")
@@ -90,6 +92,19 @@ function FileCardActions({file ,  url }:{ file:Doc<"files"> }  & {url: string | 
       <ArrowDownToLine className="w-4 h-4" /> Download
   </DropdownMenuItem>
 
+   <DropdownMenuSeparator />
+  <DropdownMenuItem className="flex gap-1 text-yellow-600 items-center flex  justify-start text-center cursor-pointer " 
+   onClick={() => {
+       toggleFavourite({
+            fileId:file._id, 
+            
+       })
+   }}
+  >
+      <StarIcon className="w-4 h-4" /> Favourite
+  </DropdownMenuItem>
+
+    <DropdownMenuSeparator />
 
 
   <DropdownMenuItem className="flex gap-1 text-red-600 items-center flex justify-start text-center cursor-pointer " 
@@ -156,28 +171,36 @@ export default function FileCard({file , url }:{ file:Doc<"files"> }  & {url: st
 
 
             <Card onClick={() => {
-                    if(!url) return ; 
-                    window.open(url , "_blank")
+                    // if(!url) return ; 
+                    // window.open(url , "_blank")
+            
             }} className="cursor-pointer" >
             <CardHeader className="relative">
-                <CardTitle className="flex gap-1 items-center text-sm absolute top-2 left-2"><p><abbr title={`${file.name}.${file.type}`}>{typeIcons[file.type]}</abbr></p>{file.name}</CardTitle>
+
+               <div className="cardtitle"> <CardTitle className="flex gap-1 items-center text-sm absolute top-2 left-2 "><p><abbr title={`${file.name}.${file.type}`}>{typeIcons[file.type]}</abbr></p>{file.name}</CardTitle></div>
                 <div className="absolute top-1 right-0.5 outline-none mb-4 ">
                     <FileCardActions file={file} url={url} />
                 </div>
             </CardHeader>
-            <CardContent className="h-[100px] w-full flex justify-center items-center" >
+            <CardContent  className="h-[150px] w-full flex justify-center items-center" 
+                onClick={() => {
+                       if(!url) return ; 
+                    window.open(url , "_blank")
+                }}
+            >
             {file.type === "png" && url && (
-          <Image alt={file.name} width="100" height="100" src={url} />
+          <Image alt={file.name} width="100" height="100" src={url} className="rounded w-40"
+          />
              
         )}
          {file.type === "jpeg" && url && (
-          <Image alt={file.name} width="100" height="100" src={url}  />
+          <Image alt={file.name} width="100" height="100" src={url} className="rounded w-60 pt-4 rounded" />
         )}
          {file.type === "jpg" && url && (
-          <Image alt={file.name} width="100" height="100" src={url} />
+          <Image alt={file.name} width="300" height="300" src={url} className="rounded" />
         )}
         {file.type === "mp4" && url && (
-          <video className="rounded flex jusitfy-center items-center pt-6 mt-6 mb-6  "  width="200" height="200" src={url} 
+          <video className="rounded flex jusitfy-center items-center pt-6 mt-6 mb-6  "  width="300" height="300" src={url} 
             onMouseOver={() => {
                       const video  = document.querySelector('video');
                       video?.setAttribute("controls" , "true")
@@ -187,18 +210,18 @@ export default function FileCard({file , url }:{ file:Doc<"files"> }  & {url: st
          {file.type === "mp3" && url && (
           <video className="rounded" controls width="200" height="200" src={url}  />
         )}
-                { file.type === "csv" && <GanttChartIcon className="w-20 h-20  mx-auto"  />}
-                { file.type === "pdf" && <FileTextIcon  className="w-20 h-20  mx-auto"  />}
-                { file.type === "html" && <Code className="w-20 h-20  mx-auto"  />}
-                { file.type === "css" && <Hash className="w-20 h-20  mx-auto"  />}
-                { file.type === "js" && <Braces className="w-20 h-20  mx-auto"  />}
-                { file.type === "txt" && <Text className="w-20 h-20  mx-auto"  />}
-                { file.type === "zip" && <FileArchive className="w-20 h-20  mx-auto"  />}
-                { file.type === "iso" && <Disc className="w-20 h-20  mx-auto"  />}
-                { file.type === "rar" && <FolderArchive className="w-20 h-20  mx-auto"  />}
-                { file.type === "doc" && <FileText className="w-20 h-20  mx-auto"  />}
-                { file.type === "xls" && <Table className="w-20 h-20  mx-auto"  />}
-                { file.type === "xlsx" && <Table className="w-20 h-20  mx-auto"  />}
+                { file.type === "csv" && <GanttChartIcon className="w-40 h-40  mx-auto"  />}
+                { file.type === "pdf" && <FileTextIcon  className="w-40 h-40  mx-auto"  />}
+                { file.type === "html" && <Code className="w-40 h-40  mx-auto"  />}
+                { file.type === "css" && <Hash className="w-40 h-40  mx-auto"  />}
+                { file.type === "js" && <Braces className="w-40 h-40  mx-auto"  />}
+                { file.type === "txt" && <Text className="w-40 h-40  mx-auto"  />}
+                { file.type === "zip" && <FileArchive className="w-40 h-40  mx-auto"  />}
+                { file.type === "iso" && <Disc className="w-40 h-40  mx-auto"  />}
+                { file.type === "rar" && <FolderArchive className="w-40 h-40  mx-auto"  />}
+                { file.type === "doc" && <FileText className="w-40 h-40  mx-auto"  />}
+                { file.type === "xls" && <Table className="w-40 h-40  mx-auto"  />}
+                { file.type === "xlsx" && <Table className="w-40 h-40  mx-auto"  />}
 
 
                 </CardContent>

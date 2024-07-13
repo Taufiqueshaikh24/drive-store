@@ -81,7 +81,8 @@ export const getFiles = query({
      args: {
        orgId: v.string(),
        type : v.optional(fileTypes),
-       query : v.optional(v.string())
+       query : v.optional(v.string()),
+       favourites: v.optional(v.boolean())
      },
      async handler(ctx, args) {
        const identity = await ctx.auth.getUserIdentity();
@@ -119,6 +120,22 @@ export const getFiles = query({
       );
     }
 
+
+   
+       
+
+    if(args.favourites){
+      const user = await ctx.db.query("users")
+      .withIndex("by_tokenIdentifier" , q => q.eq("tokenIdentifier" , identity.tokenIdentifier)).first()
+
+      if(!user){ return files ;}
+ 
+        const favourite = await ctx.db.query("favourites")
+           .withIndex("by_userId_orgId_fileId" , q => q.eq("userId" , user._id)
+           .eq("orgId" , args.orgId)).collect()
+
+           files = files.filter((file) => favourite.some((fav) =>  fav.fileId === file._id))
+    }
 
         const filesWithUrl = await Promise.all(
           files?.map(async (file) => ({
@@ -168,6 +185,65 @@ export const getFiles = query({
 
           }
    })
+
+
+
+   export const toggleFavourites = mutation({
+          args :{
+            fileId: v.id("files")
+          },
+          async handler(ctx , args){
+                  const access = await hasAccessToFile(ctx , args.fileId)
+
+                  if(!access){ return new ConvexError("You are not Authorized")}
+
+                const favourite = await ctx.db.query("favourites")
+                .withIndex("by_userId_orgId_fileId" , q =>  q.eq("userId" , access.user._id ).eq("orgId", access.file.orgId).eq("fileId", access.file._id)).first()
+
+
+                if(!favourite){
+                   await ctx.db.insert("favourites" , {
+                        fileId : access.file._id , 
+                        userId : access.user._id , 
+                        orgId : access.file.orgId
+                   })
+                }else {
+                     await ctx.db.delete(favourite._id);
+                }
+
+          }
+   })
+
+
+
+   export async function hasAccessToFile(ctx : MutationCtx | QueryCtx , fileId:Id<"files">){
+    const identity  = await ctx.auth.getUserIdentity();
+                
+
+    if(!identity){
+         return null
+    }
+
+    const file = await ctx.db.get(fileId)
+
+    if(!file){ 
+        return null
+    }
+
+    const hasAccess  = await hasAccessToOrg( ctx , identity.tokenIdentifier , file.orgId  )
+
+    if(!hasAccess) { return null}
+
+    const user  = await ctx.db.query("users")
+    .withIndex("by_tokenIdentifier" , q=>q.eq("tokenIdentifier" , identity.tokenIdentifier)).first()
+
+    if(!user) { 
+         return null
+    }
+
+    return { user , file}
+
+   }
 
 
 
