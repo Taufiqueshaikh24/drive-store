@@ -178,7 +178,7 @@ const formSchema = z.object({
         }}>
   <DialogTrigger asChild >
   <Button
-          className="hover:opacity-0.5 flex gap-1"
+          className="hover:opacity-0.5 flex gap-1 px-12"
           disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting && (

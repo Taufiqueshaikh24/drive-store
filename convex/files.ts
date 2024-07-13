@@ -80,7 +80,8 @@ export const createFile = mutation({
 export const getFiles = query({
      args: {
        orgId: v.string(),
-       type : v.optional(fileTypes)
+       type : v.optional(fileTypes),
+       query : v.optional(v.string())
      },
      async handler(ctx, args) {
        const identity = await ctx.auth.getUserIdentity();
@@ -105,7 +106,18 @@ export const getFiles = query({
         // );
     
         // return filesWithUrl;
-      
+
+
+
+        const query  = args.query ; 
+
+
+         
+    if (query) {
+      files = files.filter((file) =>
+        file.name.toLowerCase().includes(query.toLowerCase())
+      );
+    }
 
 
         const filesWithUrl = await Promise.all(
@@ -116,8 +128,10 @@ export const getFiles = query({
         );
 
         console.log(filesWithUrl);
+
+
     
-        return filesWithUrl;
+    return filesWithUrl
 
 
 

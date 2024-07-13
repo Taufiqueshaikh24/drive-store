@@ -168,15 +168,21 @@ export default function FileCard({file , url }:{ file:Doc<"files"> }  & {url: st
             <CardContent className="h-[100px] w-full flex justify-center items-center" >
             {file.type === "png" && url && (
           <Image alt={file.name} width="100" height="100" src={url} />
+             
         )}
          {file.type === "jpeg" && url && (
-          <Image alt={file.name} width="100" height="100" src={url} />
+          <Image alt={file.name} width="100" height="100" src={url}  />
         )}
          {file.type === "jpg" && url && (
           <Image alt={file.name} width="100" height="100" src={url} />
         )}
         {file.type === "mp4" && url && (
-          <video className="rounded flex jusitfy-center items-center pt-6 mt-6 mb-6  " controls width="300" height="300" src={url}  />
+          <video className="rounded flex jusitfy-center items-center pt-6 mt-6 mb-6  "  width="200" height="200" src={url} 
+            onMouseOver={() => {
+                      const video  = document.querySelector('video');
+                      video?.setAttribute("controls" , "true")
+            }}
+          />
         )}
          {file.type === "mp3" && url && (
           <video className="rounded" controls width="200" height="200" src={url}  />
