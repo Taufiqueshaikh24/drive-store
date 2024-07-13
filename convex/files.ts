@@ -20,15 +20,30 @@ export const generateUploadUrl = mutation(async (ctx) => {
 
 async function hasAccessToOrg(
   ctx: QueryCtx | MutationCtx,
-  tokenIdentifier: string,
   orgId: string
 ) {
-  const user = await getUser(ctx, tokenIdentifier);
+
+   const identity = await ctx.auth.getUserIdentity();
+
+   if(!identity){  return null}
+
+   const user = await ctx.db.query("users")
+       .withIndex("by_tokenIdentifier", q => q.eq("tokenIdentifier" , identity.tokenIdentifier)).first();
+       
+
+      if(!user) { return null}
+
+  // const user = await getUser(ctx, tokenIdentifier);
 
   const hasAccess =
     user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId);
 
-  return hasAccess;
+    if(!hasAccess){ return null}
+
+
+    return { user }
+
+
 }
 
 
@@ -54,10 +69,12 @@ export const createFile = mutation({
             throw new ConvexError('You Must be logged in')
       }
 
-         const user = await getUser(ctx , identity.tokenIdentifier);
+        //  const user = await getUser(ctx , identity.tokenIdentifier);
 
 
-          const hasAccess = await hasAccessToOrg(ctx , identity?.tokenIdentifier , args.orgId)
+
+
+          const hasAccess = await hasAccessToOrg(ctx , args.orgId)
           
      
 
@@ -90,7 +107,11 @@ export const getFiles = query({
        if (!identity) {
          return [];
        }
-   
+       
+
+       const hasAccess = await hasAccessToOrg(ctx , args.orgId);
+
+       if(!hasAccess){ return []; }
    
        let files =  await ctx.db
          .query("files")
@@ -175,7 +196,7 @@ export const getFiles = query({
 
               if(!file.orgId) return ;
                // i was getting error in file.orgId so i checked up for if(!file.orgId) return;              
-              const hasAccess = await hasAccessToOrg(ctx , identity.tokenIdentifier, file.orgId );
+              const hasAccess = await hasAccessToOrg(ctx , file.orgId );
 
              if(!hasAccess){
                  throw new ConvexError('You are not authorized to this Organization');
@@ -230,7 +251,7 @@ export const getFiles = query({
         return null
     }
 
-    const hasAccess  = await hasAccessToOrg( ctx , identity.tokenIdentifier , file.orgId  )
+    const hasAccess  = await hasAccessToOrg( ctx , file.orgId  )
 
     if(!hasAccess) { return null}
 
@@ -245,6 +266,22 @@ export const getFiles = query({
 
    }
 
+
+
+   export const  getAllFavourties = query({
+    args:{
+      orgId: v.string(),
+  }, 
+  async handler(ctx , args){
+          const access = await hasAccessToOrg(ctx , args.orgId);
+          if(!access) { return []; }
+
+           const favourites= await ctx.db.query("favourites")
+              .withIndex("by_userId_orgId_fileId" , q=>q.eq("userId" , access.user._id).eq("orgId" , args.orgId)).collect();
+
+          return favourites;
+  }
+   })
 
 
 

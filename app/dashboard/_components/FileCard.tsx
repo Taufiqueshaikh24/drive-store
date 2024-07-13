@@ -13,7 +13,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import { Text ,  Braces, Code, Disc, FileArchive, FileText, FileTextIcon, GanttChartIcon, Hash, Headphones, ImageIcon, MoreVertical, TrashIcon, Video, Table, FolderArchive, ArrowDownToLine, StarIcon, } from "lucide-react"
+import { Text ,  Braces, Code, Disc, FileArchive, FileText, FileTextIcon, GanttChartIcon, Hash, Headphones, ImageIcon, MoreVertical, TrashIcon, Video, Table, FolderArchive, ArrowDownToLine, StarIcon, StarHalf, } from "lucide-react"
 import { Doc, Id } from "@/convex/_generated/dataModel"
 import { ReactNode, useState } from "react"
 import {
@@ -42,7 +42,7 @@ function getFileUrl(fileId: Id<"_storage">):string {
 
 
 
-function FileCardActions({file ,  url }:{ file:Doc<"files"> }  & {url: string | null}){
+function FileCardActions({file ,  url , isFavourited }:{ file:Doc<"files"> , isFavourited:boolean }  & {url: string | null} ){
    
      const { toast } = useToast();
 
@@ -50,6 +50,9 @@ function FileCardActions({file ,  url }:{ file:Doc<"files"> }  & {url: string | 
     const toggleFavourite = useMutation(api.files.toggleFavourites)
 
     const [isOpen , setIsOpen ] = useState(false);
+
+
+    
 
     return (
        <>
@@ -101,7 +104,14 @@ function FileCardActions({file ,  url }:{ file:Doc<"files"> }  & {url: string | 
        })
    }}
   >
-      <StarIcon className="w-4 h-4" /> Favourite
+      
+
+             
+        {!isFavourited 
+        ? (<> <StarIcon className="w-4 h-4" /> Favourite </>) 
+        : (<><StarHalf className="w-4 h-4" />RemoveFav</>) }
+
+      
   </DropdownMenuItem>
 
     <DropdownMenuSeparator />
@@ -128,7 +138,7 @@ function FileCardActions({file ,  url }:{ file:Doc<"files"> }  & {url: string | 
 
 
 
-export default function FileCard({file , url }:{ file:Doc<"files"> }  & {url: string | null}){               
+export default function FileCard({file , url , favourite }:{ file:Doc<"files"> ,  favourite:Doc<"favourites">[] }  & {url: string | null}){               
 
 
     
@@ -159,7 +169,7 @@ export default function FileCard({file , url }:{ file:Doc<"files"> }  & {url: st
         
     } as Record<Doc<"files">["type"] | any ,  ReactNode>
 
-     
+      const isFavourited  = favourite.some((fav) =>  fav.fileId === file._id)
       
     if(!file.type) return ;
       
@@ -179,10 +189,10 @@ export default function FileCard({file , url }:{ file:Doc<"files"> }  & {url: st
 
                <div className="cardtitle"> <CardTitle className="flex gap-1 items-center text-sm absolute top-2 left-2 "><p><abbr title={`${file.name}.${file.type}`}>{typeIcons[file.type]}</abbr></p>{file.name}</CardTitle></div>
                 <div className="absolute top-1 right-0.5 outline-none mb-4 ">
-                    <FileCardActions file={file} url={url} />
+                    <FileCardActions file={file} url={url} isFavourited={isFavourited} />
                 </div>
             </CardHeader>
-            <CardContent  className="h-[150px] w-full flex justify-center items-center" 
+            <CardContent  className="h-[150px] w-[300px] flex justify-center items-center" 
                 onClick={() => {
                        if(!url) return ; 
                     window.open(url , "_blank")

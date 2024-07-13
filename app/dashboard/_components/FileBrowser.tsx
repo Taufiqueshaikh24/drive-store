@@ -17,6 +17,7 @@ import {  Loader2,  } from "lucide-react";
 import SearchBar from "../_components/searchBar";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { skip } from "node:test";
 
 
 
@@ -37,6 +38,7 @@ import { Button } from "@/components/ui/button";
           orgId = organization.organization?.id ?? user.user?.id
      }
     const files = useQuery(api.files.getFiles, orgId  ? { orgId , query , favourites } : 'skip' );
+    const favourite = useQuery(api.files.getAllFavourties,  orgId ? { orgId }: "skip");
     const isLoading  =  files === undefined ; 
     const queryFailed = query === undefined ; 
     console.log(files);
@@ -103,7 +105,7 @@ import { Button } from "@/components/ui/button";
                   
 
                  {files?.map((file) => {
-                   return <FileCard key={file._id} file={file} url={file.url}  />
+                   return <FileCard key={file._id} file={file} url={file.url} favourite={favourite ?? []}  />
                   })}
                   </div>
                   {/*  */}
