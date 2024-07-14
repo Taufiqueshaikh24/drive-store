@@ -8,6 +8,40 @@
 ![image](https://github.com/user-attachments/assets/3185e8a3-d856-46b5-91da-850a443c799a)
 
 
+Here are some of the current features that drive store has:
+
+ User authentication with Clerk 
+ User authorization
+ Route protection
+ User profile with user listings
+ FIle  Listing CRUD
+ image upload  for file
+ File search
+ Toast notifications shadcn ui components
+ Marks as a Favourite 
+ Deleted A file 
+ Restore a file with in a minute 
+ Convex cron job to delete a after one minute when it was deleted 
+ role based authorization 
+ Use of Organization using clerk 
+ Custom 404 page
+
+
+
+
+
+Drive Store uses the following technologies:
+
+Next.js
+React
+TypeScript
+Tailwind CSS
+Convex Database
+Clerk
+Shadcn UI
+Lucide React Icons 
+
+
 
 
 
