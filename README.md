@@ -10,21 +10,22 @@
 
 Here are some of the current features that drive store has:
 
- User authentication with Clerk 
- User authorization
- Route protection
- User profile with user listings
- FIle  Listing CRUD
- image upload  for file
- File search
- Toast notifications shadcn ui components
- Marks as a Favourite 
- Deleted A file 
- Restore a file with in a minute 
- Convex cron job to delete a after one minute when it was deleted 
- role based authorization 
- Use of Organization using clerk 
- Custom 404 page
+ User authentication with Clerk ,
+ User authorization,
+ Route protection,
+ User profile with user listings,
+ FIle  Listing CRUD,
+ image upload  for file,
+ File search,
+ Toast notifications shadcn ui components,
+ Marks as a Favourite ,
+ Deleted A file ,
+ Restore a file with in a minute ,
+ Convex cron job to delete a after one minute when it was deleted ,
+ role based authorization ,
+ Use of Organization using clerk ,
+ mutilple type of file can be saved txt , pdf , zip , iso , mp3  , mp4 , html ,  css , js , xls , xlsx 
+ Custom 404 page,
 
 
 
