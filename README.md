@@ -8,24 +8,28 @@
 ![image](https://github.com/user-attachments/assets/3185e8a3-d856-46b5-91da-850a443c799a)
 
 
-Here are some of the current features that drive store has:
+## Features
 
- User authentication with Clerk ,
- User authorization,
- Route protection,
- User profile with user listings,
- FIle  Listing CRUD,
- image upload  for file,
- File search,
- Toast notifications shadcn ui components,
- Marks as a Favourite ,
- Deleted A file ,
- Restore a file with in a minute ,
- Convex cron job to delete a after one minute when it was deleted ,
- role based authorization ,
- Use of Organization using clerk ,
- mutilple type of file can be saved txt , pdf , zip , iso , mp3  , mp4 , html ,  css , js , xls , xlsx 
- Custom 404 page . 
+Here are some of the current features that Property Pulse has:
+
+- [x] User authentication with Clerk
+- [x] User authorization
+- [x] Role based Authentication
+- [x] Creating Organization to store the file
+- [x] Route protection,
+- [x] User profile with user listings
+- [x] File  Listing CRUD,
+- [x] Image upload  for file,
+- [x] File search
+- [x] Toast notifications shadcn ui components,
+- [x] Marks as a Favourite ,
+- [x] Restore a file with in a minute ,
+- [x] Convex cron job to delete a after one minute when it was deleted ,
+- [x] mutilple type of file can be saved txt , pdf , zip , iso , mp3  , mp4 , html ,  css , js , xls , xlsx 
+- [x] Property sharing to social media
+- [x] Loading spinners
+- [x] Custom 404 page
+
 
 
 
