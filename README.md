@@ -13,6 +13,7 @@
 Here are some of the current features that Property Pulse has:
 
 - [x] User authentication with Clerk
+- [x] Clerk Webhooks
 - [x] User authorization
 - [x] Role based Authentication
 - [x] Creating Organization to store the file
@@ -24,7 +25,7 @@ Here are some of the current features that Property Pulse has:
 - [x] Toast notifications shadcn ui components,
 - [x] Marks as a Favourite ,
 - [x] Restore a file with in a minute ,
-- [x] Convex cron job to delete a after one minute when it was deleted ,
+- [x] Convex cron job to delete a  file after one minute of getting deleted by the user ,   
 - [x] mutilple type of file can be saved txt , pdf , zip , iso , mp3  , mp4 , html ,  css , js , xls , xlsx 
 - [x] Property sharing to social media
 - [x] Loading spinners
