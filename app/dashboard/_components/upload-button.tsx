@@ -29,7 +29,7 @@ import {  z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 
 const formSchema = z.object({
     title : z.string().min(1).max(20),
@@ -38,7 +38,7 @@ const formSchema = z.object({
     .refine((files) => files.length > 0 , 'Required')
 })
 
-  export default function UploadButton({button}: { button : string}) {
+  export default function UploadButton({button, files}: { button : string , files:Doc<"files">}) {
 
        const [isOpen , setIsOpen] = useState(false);
        const {toast} = useToast();
@@ -125,6 +125,7 @@ const formSchema = z.object({
                       type : types[fileType],
                       fileId : storageId,
                       orgId,
+                      // userId : files.userId
                     });
                     
     

@@ -1,5 +1,5 @@
 
-import {mutation, MutationCtx, query, QueryCtx} from './_generated/server'
+import {internalMutation, mutation, MutationCtx, query, QueryCtx} from './_generated/server'
 import {ConvexError, v} from 'convex/values'
 import { getUser } from './users';
 import { fileTypes } from './schema';
@@ -36,7 +36,7 @@ async function hasAccessToOrg(
   // const user = await getUser(ctx, tokenIdentifier);
 
   const hasAccess =
-    user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId);
+    user.orgIds.some((item) => item.orgId === orgId) || user.tokenIdentifier.includes(orgId);
 
     if(!hasAccess){ return null}
 
@@ -83,6 +83,14 @@ export const createFile = mutation({
              throw new Error('You are not Authorized');
           }
 
+          
+   const user = await ctx.db.query("users")
+   .withIndex("by_tokenIdentifier", q => q.eq("tokenIdentifier" , identity.tokenIdentifier)).first();
+   
+
+  if(!user) { return null}
+
+
         await ctx.db.insert('files' , {
                name:args.name,
                type : args.type,
@@ -99,7 +107,8 @@ export const getFiles = query({
        orgId: v.string(),
        type : v.optional(fileTypes),
        query : v.optional(v.string()),
-       favourites: v.optional(v.boolean())
+       favourites: v.optional(v.boolean()),
+       deletedOnly : v.optional(v.boolean())
      },
      async handler(ctx, args) {
        const identity = await ctx.auth.getUserIdentity();
@@ -158,6 +167,13 @@ export const getFiles = query({
            files = files.filter((file) => favourite.some((fav) =>  fav.fileId === file._id))
     }
 
+
+      if(args.deletedOnly){
+           files = files.filter((file)=> file.shouldDelete);
+      }else {
+           files = files.filter((file) => !file.shouldDelete);
+      }
+
         const filesWithUrl = await Promise.all(
           files?.map(async (file) => ({
             ...file,
@@ -182,29 +198,73 @@ export const getFiles = query({
               fileId: v.id("files")
           }, 
           async handler(ctx , args){
-              const identity = await ctx.auth.getUserIdentity();
+            
+             const access = await hasAccessToOrg(ctx , args.fileId);
 
-              if(!identity){
-                  throw new ConvexError('You are not authorized to this Organization');
-              }
+             const file = await ctx.db.get(args.fileId);
 
-              const file = await ctx.db.get(args.fileId);
+             if(!file){  throw new ConvexError('file does not exists')}
+             console.log(file.orgId);
 
-              if(!file){
-                throw new ConvexError("File doesn't exists");
-              }
+             const isAdmin =   access?.user.orgIds.find((org) => org.orgId === file.orgId)?.role !== "admin";
 
-              if(!file.orgId) return ;
-               // i was getting error in file.orgId so i checked up for if(!file.orgId) return;              
-              const hasAccess = await hasAccessToOrg(ctx , file.orgId );
+               if(!isAdmin){ throw new ConvexError("You are not Authorized to delete this File"); }
 
-             if(!hasAccess){
-                 throw new ConvexError('You are not authorized to this Organization');
-             }
-       
-              await ctx.db.delete(args.fileId);
+              // await ctx.db.delete(args.fileId);
+
+              await ctx.db.patch(args.fileId , {
+                      shouldDelete : true 
+              })
 
           }
+   })
+
+
+
+   export const deleteAllFiles = internalMutation({
+    args: {},
+     
+  async handler(ctx , args){
+
+
+    const files = await ctx.db.query("files")
+       .withIndex("by_shouleDelete", q => q.eq("shouldDelete" , true)).collect();
+
+      await Promise.all(files.map(async (file) =>{
+          await ctx.storage.delete(file.fileId);
+          return await ctx.db.delete(file._id);
+      }))
+
+  }
+   })
+
+
+
+
+   export const restoreFile = mutation({
+    args: {
+      fileId: v.id("files")
+  }, 
+  async handler(ctx , args){
+    
+     const access = await hasAccessToOrg(ctx , args.fileId);
+
+     const file = await ctx.db.get(args.fileId);
+
+     if(!file){  throw new ConvexError('file does not exists')}
+     console.log(file.orgId);
+
+     const isAdmin =   access?.user.orgIds.find((org) => org.orgId === file.orgId)?.role !== "admin";
+
+       if(!isAdmin){ throw new ConvexError("You are not Authorized to delete this File"); }
+
+      // await ctx.db.delete(args.fileId);
+
+      await ctx.db.patch(args.fileId , {
+              shouldDelete : false 
+      })
+
+  }
    })
 
 

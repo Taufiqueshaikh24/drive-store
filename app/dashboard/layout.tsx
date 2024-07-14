@@ -23,7 +23,7 @@ export default function DashBoardLayout({
 
       <SideNav />
     
-      <div className="w-full container">
+      <div className="mx-auto w-full">
 
             {children}
             {/*  */}

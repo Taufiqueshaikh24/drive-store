@@ -1,7 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-import { FileIcon, StarIcon } from "lucide-react";
+import { FileIcon, StarIcon, Trash2Icon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -30,6 +30,13 @@ export default function SideNav(){
                         "bg-black text-white": pathname.includes("/dashboard/favourites")
                 })} >
                     <StarIcon />Favourites
+                </Button>
+    </Link>
+    <Link href="/dashboard/trash">
+                <Button variant={"ghost"} className={clsx("flex gap-2 pr-12" , {
+                        "bg-black text-white": pathname.includes("/dashboard/trash")
+                })} >
+                    <Trash2Icon />Trash
                 </Button>
     </Link>
 

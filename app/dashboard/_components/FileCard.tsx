@@ -13,7 +13,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import { Text ,  Braces, Code, Disc, FileArchive, FileText, FileTextIcon, GanttChartIcon, Hash, Headphones, ImageIcon, MoreVertical, TrashIcon, Video, Table, FolderArchive, ArrowDownToLine, StarIcon, StarHalf, } from "lucide-react"
+import { Text ,  Braces, Code, Disc, FileArchive, FileText, FileTextIcon, GanttChartIcon, Hash, Headphones, ImageIcon, MoreVertical, TrashIcon, Video, Table, FolderArchive, ArrowDownToLine, StarIcon, StarHalf, Undo2Icon, } from "lucide-react"
 import { Doc, Id } from "@/convex/_generated/dataModel"
 import { ReactNode, useState } from "react"
 import {
@@ -26,11 +26,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
   } from "@/components/ui/alert-dialog"
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu"
+import { Protect, UserProfile } from "@clerk/nextjs"
 
 
 
@@ -48,6 +49,7 @@ function FileCardActions({file ,  url , isFavourited }:{ file:Doc<"files"> , isF
 
     const deleteFile = useMutation(api.files.deleteFile);
     const toggleFavourite = useMutation(api.files.toggleFavourites)
+    const restoreFile = useMutation(api.files.restoreFile);
 
     const [isOpen , setIsOpen ] = useState(false);
 
@@ -61,8 +63,7 @@ function FileCardActions({file ,  url , isFavourited }:{ file:Doc<"files"> , isF
                 <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete your account
-                    and remove your data from our servers.
+                   This action will mark the file for our deletion process. Files are deleted periodically
                 </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -73,8 +74,8 @@ function FileCardActions({file ,  url , isFavourited }:{ file:Doc<"files"> , isF
                       });
                       toast({
                          variant:"default",
-                         title : "File deleted successfully", 
-                         description: "Your file Has been deleted"
+                         title : "File Marked for deletion", 
+                         description: "Your file will be deleted soon"
                       })
                 }}>Continue</AlertDialogAction>
                 </AlertDialogFooter>
@@ -116,14 +117,33 @@ function FileCardActions({file ,  url , isFavourited }:{ file:Doc<"files"> , isF
 
     <DropdownMenuSeparator />
 
+    <Protect
+      role="org:admin"
+      fallback=""
+    >
+     
+
 
   <DropdownMenuItem className="flex gap-1 text-red-600 items-center flex justify-start text-center cursor-pointer " 
    onClick={() => {
-         setIsOpen(true)
+      if(file.shouldDelete){
+             restoreFile({
+                fileId : file._id
+             })
+      }else {
+        setIsOpen(true)
+      }
    }}
   >
-      <TrashIcon className="w-4 h-4" /> Delete
+
+     {file.shouldDelete ? (<>
+          <Undo2Icon className="w-4 h-4" /> Restore
+      </>) : (<>
+        <TrashIcon className="w-4 h-4" /> Delete
+      </>)}
+     
   </DropdownMenuItem>
+  </Protect>
 </DropdownMenuContent>
 </DropdownMenu>
 
@@ -169,8 +189,8 @@ export default function FileCard({file , url , favourite }:{ file:Doc<"files"> ,
         
     } as Record<Doc<"files">["type"] | any ,  ReactNode>
 
-      const isFavourited  = favourite.some((fav) =>  fav.fileId === file._id)
-      
+      const isFavourited  = favourite?.some((fav) =>  fav.fileId === file._id)
+    
     if(!file.type) return ;
       
 
@@ -192,7 +212,7 @@ export default function FileCard({file , url , favourite }:{ file:Doc<"files"> ,
                     <FileCardActions file={file} url={url} isFavourited={isFavourited} />
                 </div>
             </CardHeader>
-            <CardContent  className="h-[150px] w-[300px] flex justify-center items-center" 
+            <CardContent  className="h-[200px] lg:w-[345px] sm:w-full xs:w-full flex justify-center items-center " 
                 onClick={() => {
                        if(!url) return ; 
                     window.open(url , "_blank")
@@ -204,13 +224,13 @@ export default function FileCard({file , url , favourite }:{ file:Doc<"files"> ,
              
         )}
          {file.type === "jpeg" && url && (
-          <Image alt={file.name} width="100" height="100" src={url} className="rounded w-60 pt-4 rounded" />
+          <Image alt={file.name} width="100" height="100" src={url} className="rounded w-40  rounded" />
         )}
          {file.type === "jpg" && url && (
           <Image alt={file.name} width="300" height="300" src={url} className="rounded" />
         )}
         {file.type === "mp4" && url && (
-          <video className="rounded flex jusitfy-center items-center pt-6 mt-6 mb-6  "  width="300" height="300" src={url} 
+          <video className="rounded w-40 "  width="300" height="300" src={url} 
             onMouseOver={() => {
                       const video  = document.querySelector('video');
                       video?.setAttribute("controls" , "true")

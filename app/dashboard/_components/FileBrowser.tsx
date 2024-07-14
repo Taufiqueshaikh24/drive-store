@@ -13,7 +13,7 @@ import Image from "next/image";
 import UploadButton from "../_components/upload-button";
 
 import FileCard from "../_components/FileCard";
-import {  Loader2,  } from "lucide-react";
+import {  Delete, Loader2,  } from "lucide-react";
 import SearchBar from "../_components/searchBar";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,9 @@ import { skip } from "node:test";
 
 
 
-  export default function FilesBrowser({title , favourites }: {title:string , favourites?:boolean }) {
+  export default function FilesBrowser(
+    {title , favourites , deletedOnly}: 
+    {title:string , favourites?:boolean ,deletedOnly?:boolean }) {
 
    
 
@@ -37,7 +39,7 @@ import { skip } from "node:test";
      if(organization.isLoaded && user.isLoaded){
           orgId = organization.organization?.id ?? user.user?.id
      }
-    const files = useQuery(api.files.getFiles, orgId  ? { orgId , query , favourites } : 'skip' );
+    const files = useQuery(api.files.getFiles, orgId  ? { orgId , query , favourites , deletedOnly } : 'skip' );
     const favourite = useQuery(api.files.getAllFavourties,  orgId ? { orgId }: "skip");
     const isLoading  =  files === undefined ; 
     const queryFailed = query === undefined ; 
@@ -88,7 +90,7 @@ import { skip } from "node:test";
                       
                         
 
-                    <UploadButton button='+ Upload Files' />
+                    <UploadButton button='+ Upload Files' files={files} />
                         
                       
                      </div>
