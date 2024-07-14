@@ -25,7 +25,7 @@ Here are some of the current features that drive store has:
  role based authorization ,
  Use of Organization using clerk ,
  mutilple type of file can be saved txt , pdf , zip , iso , mp3  , mp4 , html ,  css , js , xls , xlsx 
- Custom 404 page,
+ Custom 404 page . 
 
 
 
@@ -33,14 +33,14 @@ Here are some of the current features that drive store has:
 
 Drive Store uses the following technologies:
 
-Next.js
-React
-TypeScript
-Tailwind CSS
-Convex Database
-Clerk
-Shadcn UI
-Lucide React Icons 
+Next.js , 
+React , 
+TypeScript , 
+Tailwind CSS, 
+Convex Database , 
+Clerk , 
+Shadcn UI ,
+Lucide React Icons .
 
 
 
