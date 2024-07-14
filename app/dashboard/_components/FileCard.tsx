@@ -50,6 +50,8 @@ function FileCardActions({file ,  url , isFavourited }:{ file:Doc<"files"> , isF
     const deleteFile = useMutation(api.files.deleteFile);
     const toggleFavourite = useMutation(api.files.toggleFavourites)
     const restoreFile = useMutation(api.files.restoreFile);
+    const user = useQuery(api.users.getUsers);
+    const me = useQuery(api.users.getMe);
 
     const [isOpen , setIsOpen ] = useState(false);
 
@@ -118,8 +120,11 @@ function FileCardActions({file ,  url , isFavourited }:{ file:Doc<"files"> , isF
     <DropdownMenuSeparator />
 
     <Protect
-      role="org:admin"
-      fallback=""
+       condition={(check) => {
+            return check({
+                  role:"org:admin"
+            }) || user?._id === me?._id
+       }}
     >
      
 

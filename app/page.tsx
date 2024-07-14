@@ -1,129 +1,47 @@
-"use client"
-import { useOrganization, useUser} from "@clerk/nextjs";
-import { api } from "@/convex/_generated/api";
-import {  useQuery } from "convex/react";
-import Image from "next/image";
-  
+'use client'
 
-
-import UploadButton from "./dashboard/_components/upload-button";
-import FileCard from "./dashboard/_components/FileCard";
-import { FileIcon, Loader2, StarIcon } from "lucide-react";
-import { url } from "inspector";
-import SearchBar from "./dashboard/_components/searchBar";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import Link from "next/link"
 
 
 
 
-  export default function Home() {
+export default function Example() {
 
-   
+  return (
+    <div className="bg-white">
 
-    
-    const [query , setQuery] = useState("");
-
-
-    const organization  = useOrganization();
-    const user = useUser();
-     let orgId : string | undefined = undefined ;
-
-     if(organization.isLoaded && user.isLoaded){
-          orgId = organization.organization?.id ?? user.user?.id
-     }
-    const files = useQuery(api.files.getFiles, orgId  ? { orgId , query } : 'skip' );
-    const isLoading  =  files === undefined ; 
-    const queryFailed = query === undefined ; 
-    console.log(files);
-    return (
-      <>
-       { isLoading && (
-            <div className="flex flex-col gap-8 pt-28  font-thin justify-center items-center h-full  mx-auto">
-                    <Loader2 className="h-32 w-32 animate-spin " />
-               </div>
-          )}
-
-   
-      <main>
-          <div className="flex">
-
-          <div className="w-1/5 container flex flex-col gap-2 justify-start items-start h-50 mt-10" >
-          {!isLoading && (<>
-              <Link href="/"><Button variant={"link"} className="flex gap-2" ><FileIcon />All Files</Button></Link>
-              <Link href="/"><Button variant={"link"} className="flex gap-2" ><StarIcon />Favourites</Button></Link>
-    </> )}
-
-          
+      <div className="relative isolate px-6 pt-14 lg:px-8">
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+        >
+          <div
+            style={{
+              clipPath:
+                'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
+            }}
+            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+          />
+        </div>
+        <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 absolute top-[40%] left-[25%]">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-black-900 sm:text-6xl">
+              Easy Upload and Share your file
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-black-600">
+              Easiest and secure way to manage you personal and professional files 
+            </p>
+            <div className="mt-10 flex items-center justify-center gap-x-6">
+              <Link
+                href="/dashboard/files"
+                className="rounded-md bg-indigo-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Get started
+              </Link>
+            </div>
           </div>
-
-          
-            <div className="w-full">
-
-        {/* side nav div */}
-          <div className="container flex justify-between pt-6 mt-4 ">
-         
-          
-
-
-            {!isLoading && !queryFailed && files?.length === 0 && (
-                <div className="flex flex-col items-center w-full ">
-                 
-                 <Image 
-                 width="400"
-                 height="400"
-                 src="/empty.svg"
-                 alt="you don't have files image"
-                 />
-                   <div className="text-2xl mt-2 mb-4 text-center font-bold mx-auto">{queryFailed ? "File not found" : "You don't have files, Upload now"}</div>
-                    {queryFailed ? <Button>Go Back</Button> :  <UploadButton button='Upload Files' /> }
-                  
-                 </div>
-            )}
-
-
-            {!isLoading && files.length > 0  && (
-              <>
-                     <div className="w-full flex  justify-between items-center">
-                        
-                   
-
-                      <h2 className="text-3xl font-bold">Your Files</h2>
-                  
-                    
-
-                      <SearchBar query={query} setQuery={setQuery} />
-                      
-                        
-
-                    <UploadButton button='+ Upload Files' />
-                        
-                      
-                     </div>
-                   
-                    
-              </>
-
-            )}
-      
-          </div>
-              
-                 <div className="mt-16 grid lg:grid-cols-3 gap-4 px-4 mb-4 sm:grid-cols-2 xs:grid-cols-1">
-
-                  
-
-                 {files?.map((file) => {
-                   return <FileCard key={file._id} file={file} url={file.url}  />
-                  })}
-                  </div>
-                  {/*  */}
-                  </div>
-                  </div>
-              
-             
-          </main>
-          </>
-        );
-  }
-  
+        </div>
+      </div>
+    </div>
+  )
+}

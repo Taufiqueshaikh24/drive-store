@@ -5,6 +5,7 @@ import { ConvexClientProvider } from "./ConvexClientProvider";
 import Header from "@/components/ui/Header";
 import { Toaster } from "@/components/ui/toaster"
 import { SignedIn } from "@clerk/nextjs";
+import Footer from "./Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,7 @@ export default function RootLayout({
           <SignedIn>
          {children}
           </SignedIn>
+       
         <Toaster />
         </ConvexClientProvider>
         

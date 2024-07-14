@@ -82,6 +82,39 @@ export const updateUser  = internalMutation({
 })
 
 
+export const getUsers = query({
+         args :  {},
+         async handler(ctx  , args){
+
+          const identity = await ctx.auth.getUserIdentity();
+
+          if(!identity){ throw new ConvexError("Token not found") }
+
+                 const user = await ctx.db.query("users")
+                   .withIndex("by_tokenIdentifier" , q  => q.eq("tokenIdentifier" , identity.tokenIdentifier )).first();
+         
+                   return user; 
+         }
+
+        
+})
+
+export const getMe = query({
+        args : {} , 
+        async handler(ctx , args){
+               const identity = await ctx.auth.getUserIdentity();
+               if(!identity) throw new ConvexError("Token not found");
+
+                const user = await getUser(ctx , identity.tokenIdentifier);
+
+                if(!user) throw new ConvexError("User is not defined");
+
+
+                return user ; 
+
+        }
+})
+
 export const addOrgIdToUser = internalMutation({
        args: { 
             tokenIdentifier : v.string(),

@@ -18,6 +18,8 @@ import SearchBar from "../_components/searchBar";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { skip } from "node:test";
+import { DataTable } from "./FileTable";
+import { columns } from "./columns";
 
 
 
@@ -101,6 +103,15 @@ import { skip } from "node:test";
             )}
       
           </div>
+
+        
+
+                 
+
+
+
+
+            
               
                  <div className="mt-16 grid lg:grid-cols-3 gap-4 px-4 mb-4 sm:grid-cols-2 xs:grid-cols-1">
 
